@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Product;
 
@@ -26,3 +27,5 @@ Route::get('/products/{product}', function (Product $product) {
         'ratings' => $product->ratings
     ]);
 });
+
+Route::post('/getItem', [CartController::class, 'getItem']);

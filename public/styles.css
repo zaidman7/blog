@@ -294,11 +294,13 @@ body {
   height: 330px;
 }
 .product-details {
+  position: relative;
   overflow: hidden;
   padding-left: 10px;
 }
 .rating-and-rate-button {
   float: left;
+  position: relative;
 }
 .rating-div-large {
   float: left;
@@ -309,16 +311,21 @@ body {
   height: 70%;
 }
 .rate-button {
-  float: left;
+  float: right;
   overflow: hidden;
 }
 .product-name-div {
-  float: left;
-  padding-top: 5px;
+  position: relative;
+  margin-top: 45px;
 }
 .description-div {
-  float: left;
   padding-top: 5px;
+  position: relative;
+}
+.add-to-cart-div {
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 /* ---------- End of Product Details ---------- */
 /* ------------ Comments (Ratings) ------------ */

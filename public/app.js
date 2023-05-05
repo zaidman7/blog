@@ -17,12 +17,13 @@ const banner = document.querySelector(".banner");
 const navbar = document.querySelector(".navbar");
 const websiteName = document.querySelector("title");
 const brand = document.querySelector(".navbar-brand");
+const itemsAmount = document.querySelectorAll(".item-amount");
 
 // JSON of the products of the shopping site
 const productsJsonName = "fashion_products.json";
 
 // The cart of the shopping site
-let cart = [];
+let cart = {};
 
 // The buttons of adding items to the cart
 let addToCartButtons = [];
@@ -88,7 +89,7 @@ class ProductsManager {
   //         </button>
   //       </div>
   //       <h3>${product.title}</h3>
-  //       <h4>$${product.price}</h4>
+  //       <h4>€${product.price}</h4>
   //     </article>
   //     <!-- end of single product -->
   //     `;
@@ -107,49 +108,102 @@ class CartManager {
   setupCart() {
     cart = Storage.getCart();
     // Loads the cart from the storage
-    this.updateTotalItemsAndPrice(cart);
     this.addItemsToCartDisplay(cart);
+    this.updateTotalItemsAndPrice();
     this.applyCartShowHideButtonsLogic();
   }
   /*
   Receives a cart of items and adds each of them to the cart display
   */
   addItemsToCartDisplay(cart) {
-    cart.forEach(item => this.addItemToCartDisplay(item));
+    itemsAmount.forEach(item => {
+      let id = item.getAttribute('data-id');
+      if (id in cart) {
+        item.innerHTML = cart[id];
+      }
+      else {
+        cartContent.removeChild(item.parentElement.parentElement);
+      }
+    });
   }
+
   /*
   Receives a specific item and adds it to the cart display
   */
-  addItemToCartDisplay(item) {
+  addItemToCartDisplay(event) {
+    let id = event.target.getAttribute('data-id');
+    let name = event.target.getAttribute('data-name');
+    let price = event.target.getAttribute('data-price');
+    let amount = cart[id];
+
     const cartItemElem = document.createElement("div");
     cartItemElem.classList.add("cart-item");
     cartItemElem.innerHTML += `
-    <img src=${item.image} alt="product">
+    <img src="/images/illustration-2.png" alt="product">
     <div>
-      <h4>${item.title}</h4>
-      <h5>$${item.price}</h5>
-      <span class="remove-item" data-id=${item.id}>remove</span>
+      <h4>${name}</h4>
+      <h5>€${parseFloat(price).toFixed(2)}</h5>
+      <span class="remove-item" data-id=${id}>remove</span>
     </div>
     <div>
-      <i class="fas fa-chevron-up" data-id=${item.id}></i>
-      <p class="item-amount">${item.amount}</p>
-      <i class="fas fa-chevron-down"data-id=${item.id}></i>
+      <i class="fas fa-chevron-up" data-id=${id}></i>
+      <p class="item-amount">${amount}</p>
+      <i class="fas fa-chevron-down"data-id=${id}></i>
     </div>
     `;
     cartContent.appendChild(cartItemElem);
+    
+    // $.ajaxSetup({
+    //   headers: {
+    //       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //   }
+    // });
+    // $.ajax({
+    //   url: '/getItem',
+    //   type: 'POST',
+    //     data: {
+    //       id: id
+    //     },
+    //     success: function(data) {
+    //     },
+    //     error: function(XMLHttpRequest, textStatus, errorThrown) {
+    //       alert("responseText=" + XMLHttpRequest.responseText + "\n textStatus=" + textStatus + "\n errorThrown=" + errorThrown);
+    //     }
+    // });
   }
+  
   /*
   Receives a cart of items and updates the total number of items
   in the cart and the total price, in the site's HTML
   */
-  updateTotalItemsAndPrice(cart) {
+  updateTotalItemsAndPrice() {
+    // const prices = document.querySelectorAll(".price");
     let priceTotal = 0;
     let itemsTotal = 0;
-    cart.map(item => {
-      priceTotal += item.price * item.amount;
-      itemsTotal += item.amount;
-    });
-    cartTotal.innerText = parseFloat(priceTotal.toFixed(2));
+    let price;
+    // let id;
+    // let amount;
+    let cartEntries = Object.entries(cart);
+    for(const [id, amount] of cartEntries) {
+      // amount = cart[id];
+      price = document.querySelector('.price[data-id="' + id + '"]').innerText;
+      price = parseFloat(price.substring(1));
+      priceTotal += price * amount;
+      itemsTotal += amount;
+    }
+    // for(const itemPrice of prices) {
+    //   price = parseFloat(itemPrice.textContent.substring(1));
+    //   // document.write(itemPrice.textContent);
+    //   id = itemPrice.getAttribute('data-id');
+    //   amount = cart[id];
+    //   priceTotal += price * amount;
+    //   itemsTotal += amount;
+    // }
+    // cart.map(item => {
+    //   priceTotal += item.price * item.amount;
+    //   itemsTotal += item.amount;
+    // });
+    cartTotal.innerText = priceTotal.toFixed(2);
     cartItems.innerText = itemsTotal;
   }
   /*
@@ -168,8 +222,7 @@ class CartManager {
     addToCartButtons = buttons;
     buttons.forEach(button => {
       let id = button.dataset.id;
-      let inCart = cart.find(item => item.id === id);
-      if (inCart) {
+      if (id in cart) {
         // The item was in the last saved cart
         this.disableButton(button);
       }
@@ -179,11 +232,11 @@ class CartManager {
         // cartItem is an object which is similar to
         // the one returned by the getProduct method but also
         // has amount attribute initialized to 1
-        let cartItem = {...Storage.getProduct(id), amount: 1};
+        // let cartItem = {...Storage.getProduct(id), amount: 1};
         //  Append cart with cartItem
-        cart = [...cart, cartItem];
-        this.saveCartAndUpdateValues(cart);
-        this.addItemToCartDisplay(cartItem);
+        cart[id] = 1;
+        this.saveCartAndUpdateValues();
+        this.addItemToCartDisplay(event);
         this.showCart();
       });
     });
@@ -229,19 +282,19 @@ class CartManager {
       }
       // Case 2: up arrow button is clicked
       else if (opElem.classList.contains("fa-chevron-up")) {
-        let chosenItem = cart.find(item => item.id === id);
-        chosenItem.amount += 1;
-        this.saveCartAndUpdateValues(cart);
-        opElem.nextElementSibling.innerText = chosenItem.amount;
+        // let chosenItem = cart[id];
+        cart[id] += 1;
+        this.saveCartAndUpdateValues();
+        opElem.nextElementSibling.innerText = cart[id];
         // the next sibiling of addAmount in the HTML has the class of item-amount
       }
       // Case 3: down arrow button is clicked
       else if (opElem.classList.contains("fa-chevron-down")) {
-        let chosenItem = cart.find(item => item.id === id);
-        chosenItem.amount -= 1;
-        if(chosenItem.amount > 0){
-          this.saveCartAndUpdateValues(cart);
-          opElem.previousElementSibling.innerText = chosenItem.amount;
+        // let chosenItem = cart[id];
+        cart[id] -= 1;
+        if(cart[id] > 0){
+          this.saveCartAndUpdateValues();
+          opElem.previousElementSibling.innerText = cart[id];
           // the previous sibiling of opElem in the HTML has the class of item-amount
         }
         else { //this was the only item of this product in the cart
@@ -255,19 +308,21 @@ class CartManager {
   Receives a cart, saves it to storage
   and updates the total number of item and the total price
   */
-  saveCartAndUpdateValues(cart){
-    Storage.saveCart(cart);
-    this.updateTotalItemsAndPrice(cart);
+  saveCartAndUpdateValues() {
+    Storage.saveCart();
+    this.updateTotalItemsAndPrice();
   }
   /*
   Empties the cart of items
   (in the array of items and in the site's display)
   */
   clearCart() {
-    let cartItems = cart.map(item => item.id);
+    // let cartItems = cart.map(item => item.id);
     // Clears the cart array
-    cartItems.forEach(id => this.removeItem(id));
+    // cartItems.forEach(id => this.removeItem(id));
     // Clears the cart display
+    cart = {};
+    this.saveCartAndUpdateValues();
     while(cartContent.children.length > 0){
       cartContent.removeChild(cartContent.children[0]);
     }
@@ -279,10 +334,13 @@ class CartManager {
   in this function
   */
   removeItem(id) {
-    cart = cart.filter(item => item.id !== id);
+    // cart = cart.filter(item => item.id !== id);
+
+    delete cart[id];
+
     // updates the cart array
-    this.updateTotalItemsAndPrice(cart);
-    Storage.saveCart(cart);
+    this.updateTotalItemsAndPrice();
+    Storage.saveCart();
     let button = this.getProductAddToCartButton(id);
     this.enableButton(button);
   }
@@ -315,7 +373,7 @@ class Storage {
   Receives an cart array and saves it
   in the local storage as JSON string
   */
-  static saveCart(cart) {
+  static saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
   /*
@@ -323,7 +381,7 @@ class Storage {
   otherwise returns an empty array
   */
   static getCart() {
-    return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+    return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : {};
   }
 }
 
@@ -362,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
   cartManager.setupCart();
   productsManager.setupProducts();
   productsManager.getProducts().then(products => {
-    productsManager.displayProducts(products);
+    // productsManager.displayProducts(products);
     Storage.saveProducts(products);
   }).then(() => {
     // So we won't access the add to cart buttons

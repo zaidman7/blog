@@ -56,7 +56,7 @@
         <a href="products/{{ $product->id }}">
             <img src="/images/illustration-2.png" alt="product" class="product-img">
         </a>
-        <button class="add-to-cart-btn" data-id="{{ $product->id }}">
+        <button class="add-to-cart-btn" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->price }}">
             <i class="fas fa-shopping-cart"></i>
             add to cart
         </button>
@@ -65,6 +65,6 @@
         <img src="/images/{{ round(2 * $product->ratings->avg('rating'))/2 }}-stars.png" alt="rating" class="rating-img">
     </div>
     <h3><a href="products/{{ $product->id }}" class="product-name-link">{{ $product->name }}</a></h3>
-    <h4>€{{ number_format($product->price, 2, '.', '') }}</h4>
+    <h4 class="price" data-id="{{ $product->id }}">€{{ number_format($product->price, 2, '.', '') }}</h4>
 </article>
 <!-- end of single product -->

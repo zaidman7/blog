@@ -37,6 +37,10 @@
                     <div class="description-div">
                         {{ $product->description }}
                     </div>
+
+                    <div class="add-to-cart-div">
+                        <x-add-to-cart-button :product="$product" />
+                    </div>
                 </div>
             </article>
             <div class="ratings">
