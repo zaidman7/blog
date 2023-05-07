@@ -13,13 +13,9 @@
             <h2>our products</h2>
         </div>
         <div class="products-center">
-            @if($products->count())
-                @foreach($products as $product)
-                    @include('product-card',
-                        ['product' => $product]
-                    )
-                @endforeach
-            @endif
+            @include('all-product-cards',
+                ['products' => $products]
+            )
         </div>
     </section>
     <!-- end of products -->

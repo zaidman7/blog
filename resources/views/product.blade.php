@@ -1,15 +1,19 @@
-<x-layout>
+<x-layout :products="$products">
     <section class="product-large">
-        <x-back-button :product="$product"/>
+    <a class="button" href="/">
+        &lt BACK
+    </a>
         <main style="padding-top: 5px;">
             <article>
                 <div>
-                    <div class="img-container-large">
+                    <div class="img-container" style="position: relative; overflow: hidden; float: left;">
                         @if($product->file)
                             <img src="{{ $product->file->file_path }}" alt="Blog Post illustration" class="product-img-large">
                         @else
                             <img src="/images/illustration-2.png" alt="Blog Post illustration" class="product-img-large">
                         @endif
+                        <x-add-to-cart-button :product="$product" />
+                        <x-rate-button :product="$product"/>
                     </div>
                 </div>
 
@@ -22,10 +26,6 @@
                                 <p>Product not rated yet</p>
                             @endif
                         </div>
-    
-                        <div data-id="{{ $product->id }}" class="rate-button">
-                            <x-rate-button :product="$product"/>
-                        </div>
                     </div>
 
                     <div class="product-name-div">
@@ -36,10 +36,6 @@
 
                     <div class="description-div">
                         {{ $product->description }}
-                    </div>
-
-                    <div class="add-to-cart-div">
-                        <x-add-to-cart-button :product="$product" />
                     </div>
                 </div>
             </article>
@@ -55,4 +51,10 @@
             </div>
         </main>
     </section>
+
+    <div class="hidden">
+        @include('all-product-cards',
+            ['products' => $products]
+        )
+    </div>
 </x-layout>

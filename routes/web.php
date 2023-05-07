@@ -23,6 +23,7 @@ Route::get('/', function () {
 
 Route::get('/products/{product}', function (Product $product) {
     return view('product', [
+        'products' => Product::get(),
         'product' => $product,
         'ratings' => $product->ratings
     ]);

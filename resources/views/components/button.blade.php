@@ -1,5 +1,3 @@
-<a href="{{ $path }}"
-    data-id="{{ $product->id }}"
-    class="button">
+<button class="{{ $class }}" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->price }}">
     {{ $slot }}
-</a>
+</button>

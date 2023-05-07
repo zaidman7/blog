@@ -293,6 +293,27 @@ body {
   width: 420px;
   height: 330px;
 }
+.rate-btn {
+  position: absolute;
+  top: 85%;
+  right: 0;
+  background: #87CEFA;
+  border: none;
+  text-transform: uppercase;
+  padding: 0.5rem 0.75rem;
+  letter-spacing: 0.1rem;
+  font-weight: bold;
+  transition: all 0.3s linear;
+  transform: translateX(101%);
+  /* Not visable without changing the transform */
+  cursor: pointer;
+}
+.rate-btn:hover {
+  color: #fff;
+}
+.img-container:hover .rate-btn {
+  transform: translateX(0);
+}
 .product-details {
   position: relative;
   overflow: hidden;
@@ -353,6 +374,10 @@ body {
   padding-top: 5px;
 }
 /* -------------- End of Comments ------------- */
+.hidden {
+  display: none;
+}
+/* ------------ End of Product Tab ------------ */
 /* ---------------- Components ---------------- */
 .button {
   color: black;

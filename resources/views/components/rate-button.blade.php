@@ -1,3 +1,3 @@
-<x-button :product="$product" :path="'/rate/' . $product->id" class="rate-button">
+<x-button :product="$product" class="rate-btn">
     RATE
 </x-button>

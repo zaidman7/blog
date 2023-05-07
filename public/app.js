@@ -34,8 +34,11 @@ class ProductsManager {
   Initializes an Event Listener for the "Start Shopping" button
   */
   setupProducts(){
-    startShoppingBtn.addEventListener("click", this.scrollToProducts);
+    if(startShoppingBtn) {
+      startShoppingBtn.addEventListener("click", this.scrollToProducts);
+    }
   }
+
   /*
   Creates a smooth scroll to the products section
   (activated by the"Start Shopping" button)
@@ -43,6 +46,7 @@ class ProductsManager {
   scrollToProducts(){
     productsSection.scrollIntoView({behavior: "smooth"});
   }
+
   /*
   Receives a product from the the Json and creates a product sturcture
   */
@@ -56,21 +60,23 @@ class ProductsManager {
     const categories = product.categories;
     return {website, title, price, id, image, categories};
   }
-  /*
-  Builds products' structures (based on the products JSON file)
-  and returns an array of the products of the shopping site
-  */
-  async getProducts(){
-    try {
-      let response = await fetch(productsJsonName);
-      let productsJson = await response.json();
-      let products = productsJson.items;
-      products = products.map(product => this.structureProduct(product));
-      return products;
-    } catch (e) {
-      console.log(e);
-    }
-  }
+
+  // /*
+  // Builds products' structures (based on the products JSON file)
+  // and returns an array of the products of the shopping site
+  // */
+  // async getProducts(){
+  //   try {
+  //     let response = await fetch(productsJsonName);
+  //     let productsJson = await response.json();
+  //     let products = productsJson.items;
+  //     products = products.map(product => this.structureProduct(product));
+  //     return products;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
+
   /*
   Receives an array of products and adds the products
   to the products' section HTML
@@ -112,6 +118,7 @@ class CartManager {
     this.updateTotalItemsAndPrice();
     this.applyCartShowHideButtonsLogic();
   }
+
   /*
   Receives a cart of items and adds each of them to the cart display
   */
@@ -181,31 +188,17 @@ class CartManager {
     let priceTotal = 0;
     let itemsTotal = 0;
     let price;
-    // let id;
-    // let amount;
     let cartEntries = Object.entries(cart);
     for(const [id, amount] of cartEntries) {
-      // amount = cart[id];
       price = document.querySelector('.price[data-id="' + id + '"]').innerText;
       price = parseFloat(price.substring(1));
       priceTotal += price * amount;
       itemsTotal += amount;
     }
-    // for(const itemPrice of prices) {
-    //   price = parseFloat(itemPrice.textContent.substring(1));
-    //   // document.write(itemPrice.textContent);
-    //   id = itemPrice.getAttribute('data-id');
-    //   amount = cart[id];
-    //   priceTotal += price * amount;
-    //   itemsTotal += amount;
-    // }
-    // cart.map(item => {
-    //   priceTotal += item.price * item.amount;
-    //   itemsTotal += item.amount;
-    // });
     cartTotal.innerText = priceTotal.toFixed(2);
     cartItems.innerText = itemsTotal;
   }
+
   /*
   Applies the logic of the cart show and hide buttons
   */
@@ -213,6 +206,7 @@ class CartManager {
     showCartBtn.addEventListener("click", this.showCart);
     hideCartBtn.addEventListener("click", this.hideCart);
   }
+
   /*
   Applies the logic of the "add to cart" buttons in the products section
   */
@@ -241,27 +235,32 @@ class CartManager {
       });
     });
   }
+
   /* Disable "add to cart" button */
   disableButton(button){
     button.innerText = "In Cart";
     button.disabled = true;
   }
+
   /* Enable "add to cart" button */
   enableButton(button){
     button.disabled = false;
     button.innerHTML = `<i class="fas fa-shopping-cart"></i>
     add to cart`;
   }
+
   /* Makes the cart visble and the background transparent */
   showCart() {
     cartOverlay.classList.add("transparentBcg");
     cartDOM.classList.add("showCart");
   }
+
   /* Makes the cart invisble and removes the transparent background */
   hideCart() {
     cartOverlay.classList.remove("transparentBcg");
     cartDOM.classList.remove("showCart");
   }
+
   /*
   Applies the logic of all the buttons in the cart bar
   */
@@ -304,6 +303,7 @@ class CartManager {
       }
     });
   }
+
   /*
   Receives a cart, saves it to storage
   and updates the total number of item and the total price
@@ -312,6 +312,7 @@ class CartManager {
     Storage.saveCart();
     this.updateTotalItemsAndPrice();
   }
+
   /*
   Empties the cart of items
   (in the array of items and in the site's display)
@@ -321,13 +322,18 @@ class CartManager {
     // Clears the cart array
     // cartItems.forEach(id => this.removeItem(id));
     // Clears the cart display
-    cart = {};
-    this.saveCartAndUpdateValues();
+
+    let cartEntries = Object.entries(cart);
+    for(const [id, amount] of cartEntries) {
+      this.removeItem(id);
+    }
+    // this.saveCartAndUpdateValues();
     while(cartContent.children.length > 0){
       cartContent.removeChild(cartContent.children[0]);
     }
     this.hideCart();
   }
+
   /*
   Receives a product's ID and remove it from the cart
   Note: The removal from the cart's display is not included
@@ -344,6 +350,7 @@ class CartManager {
     let button = this.getProductAddToCartButton(id);
     this.enableButton(button);
   }
+
   /*
   Recieves a product's ID and returns its "add to cart" button
   */
@@ -361,6 +368,7 @@ class Storage {
   static saveProducts(products) {
     localStorage.setItem("products", JSON.stringify(products));
   }
+
   /*
   Receives an ID of a product
   and returns the product which has that ID
@@ -369,6 +377,7 @@ class Storage {
     let products = JSON.parse(localStorage.getItem("products"));
     return products.find(product => product.id === id);
   }
+
   /*
   Receives an cart array and saves it
   in the local storage as JSON string
@@ -376,6 +385,7 @@ class Storage {
   static saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
+
   /*
   Returns the cart in the local storage if exists
   otherwise returns an empty array
@@ -419,13 +429,13 @@ document.addEventListener("DOMContentLoaded", () => {
   site.configure();
   cartManager.setupCart();
   productsManager.setupProducts();
-  productsManager.getProducts().then(products => {
-    // productsManager.displayProducts(products);
-    Storage.saveProducts(products);
-  }).then(() => {
-    // So we won't access the add to cart buttons
-    // before all the products are displayed
-    cartManager.applyAddToCartButtonsLogic();
-    cartManager.applyCartButtonsLogic();
-  });
+  // productsManager.getProducts().then(products => {
+  //   // productsManager.displayProducts(products);
+  //   Storage.saveProducts(products);
+  // }).then(() => {
+  //   // So we won't access the add to cart buttons
+  //   // before all the products are displayed
+     cartManager.applyAddToCartButtonsLogic();
+     cartManager.applyCartButtonsLogic();
+  // });
 });
